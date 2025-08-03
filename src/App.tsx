@@ -89,7 +89,7 @@ function App() {
 const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault(); 
   const addOrder=async()=>{
-    const { data, error } = await supabase
+    const {  error } = await supabase
   .from('orders')
   .insert([
     { name: name, contact: contact,description:description,plan:plan },
