@@ -25,11 +25,18 @@ function App() {
   const [currentReviewSlide, setCurrentReviewSlide] = useState(0);
   const[projects,setProjects]=useState<Project[]>([])
   const[reviews,setReviews]=useState<Review[]>([])
+  const[name,setName]=useState<string>("")
+  const[contact,setContact]=useState<string>("")
+  const[description,setDescription]=useState<string>("");
+  const[plan,setPlan]=useState<string>("");
+  const[success,setSuccess]=useState("Send Message")
+
+
   // Hero carousel images
   const heroImages = [
     'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/159304/network-cable-ethernet-computer-159304.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+    'https://res.cloudinary.com/dnfbik3if/image/upload/v1754247221/hacker-using-computer-keyboard-with-data-visualization_y3poe7.jpg',
+    'https://res.cloudinary.com/dnfbik3if/image/upload/v1754247222/Yellow_Modern_Welcome_To_My_Channel_Video_t0zzoz.jpg'
   ];
 
   // Auto-advance carousel
@@ -50,7 +57,7 @@ function App() {
   if (error) {
     console.error('Error:', error);
   } else {
-    console.log('Products:', data);
+    
   }
     }
     getProjects()
@@ -66,7 +73,7 @@ function App() {
   if (error) {
     console.error('Error:', error);
   } else {
-    console.log('Products:', data);
+    console.log("fetched");
   }
     }
     getReviews()
@@ -79,7 +86,24 @@ function App() {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
+const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault(); 
+  const addOrder=async()=>{
+    const { data, error } = await supabase
+  .from('orders')
+  .insert([
+    { name: name, contact: contact,description:description,plan:plan },
+  ])
+  .select()
+  if (error) {
+      console.error("Supabase insert error:", error);
+    } else {
+      setSuccess("Message Sent")
+    }
+  }
+  addOrder()
 
+};
 
   // Sample reviews data
   // const reviews = [
@@ -110,7 +134,7 @@ function App() {
    websites: [
   {
     name: 'Bronze',
-    price: 'Rs 10,000',
+    price: 'Rs 15,000',
     features: [
       'Up to 5 Pages',
       'Responsive Design',
@@ -123,7 +147,7 @@ function App() {
   },
   {
     name: 'Silver',
-    price: 'Rs 20,000',
+    price: 'Rs 30,000',
     features: [
       'Up to 10 Pages',
       'Advanced Custom Design',
@@ -139,7 +163,7 @@ function App() {
   },
   {
     name: 'Gold',
-    price: 'Rs 30,000',
+    price: 'Rs 50,000',
     features: [
       'Unlimited Pages',
       'Fully Custom Features',
@@ -184,7 +208,7 @@ function App() {
   },
   {
     name: 'Gold',
-    price: 'Rs 30,000',
+    price: 'Rs 35,000',
     features: [
       'Cross-Platform App (iOS & Android)',
       'Custom Backend & APIs',
@@ -812,7 +836,7 @@ function App() {
                 <h3 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   Send us a message
                 </h3>
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={(e) => submitForm(e)}>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Name
@@ -825,6 +849,9 @@ function App() {
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
                       } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
                       placeholder="Your full name"
+                      onChange={(e)=>setName(e.target.value)
+                      }
+                      required
                     />
                   </div>
                   <div>
@@ -839,7 +866,10 @@ function App() {
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
                       } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
                       placeholder="Your phone number"
-                    />
+                      onChange={(e)=>(
+                          setContact(e.target.value)
+                      )}
+                    required/>
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -853,7 +883,10 @@ function App() {
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
                       } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
                       placeholder="Tell us about your project..."
-                    />
+                      onChange={(e)=>(
+                        setDescription(e.target.value)
+                      )}
+                    required/>
                   </div>
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -865,7 +898,9 @@ function App() {
                           ? 'bg-gray-700 border-gray-600 text-white focus:border-purple-500' 
                           : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
                       } focus:outline-none focus:ring-2 focus:ring-purple-500/20`}
-                    >
+                      value={plan}  
+                       onChange={(e) => setPlan(e.target.value)}
+                    required>
                       <option value="" disabled>Select your budget range</option>
                       <option value="custom">Under Rs 10,000</option>
                       <option value="bronze">Bronze</option>
@@ -874,12 +909,19 @@ function App() {
                      
                     </select>
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                  >
-                    Send Message
-                  </button>
+               <button
+  type="submit"
+  className={`w-full py-3 rounded-lg font-medium transition-all duration-200
+    ${
+      success === "Message Sent"
+        ? "bg-green-600 hover:bg-green-700 shadow-lg transform scale-105"
+        : "bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-lg hover:scale-105"
+    } 
+    text-white
+  `}
+>
+  {success}
+</button>
                 </form>
               </div>
 
@@ -1021,13 +1063,13 @@ function App() {
               <div className={`space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 <p>+94 725858799</p>
                 <p>bashithaspc@gmail.com</p>
-                <p>123 Tech Street<br />Digital City, DC 12345</p>
+                <p>Sri Lanka</p>
               </div>
             </div>
           </div>
 
           <div className={`border-t pt-8 mt-8 text-center ${darkMode ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-600'}`}>
-            <p>&copy; 2025 FullStack Pro. All rights reserved.</p>
+            <p>&copy; 2025 WebBlitz. All rights reserved.</p>
           </div>
         </div>
       </footer>
